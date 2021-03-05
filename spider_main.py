@@ -4,30 +4,34 @@ import url_manager, html_parser, html_downloader, mysql, twilio_message, schedul
 class  SpiderMain(object):
 	"""docstring for  SpiderMain"""
 	def __init__(self):
-		self.utls = url_manager.UrlManager()
+		self.urls = url_manager.UrlManager()
 		self.downloader = html_downloader.HtmlDownloader()
 		self.parser = html_parser.HtmlParser()
 		self.dbData = mysql.MysqlCursor()
 		self.sender = twilio_message.twilio()
 
 		
-	def craw(self, week_days):
+	def craw(self, week_days, opener, headers):
 		root_urls = []
 		result_data = []
 		root_urls.append("http://m.quyundong.com/court/detail?id=17056")
-		self.utls.add_new_urls(root_urls)
+		self.urls.add_new_urls(root_urls)
+		# order_user = self.dbData.select_order_user(user_id)
+		# data = {'username': order_user['user_name'], 'password': order_user['password']}
+		# opener, headers = self.downloader.download_login(data)
 
-		while self.utls.has_new_url():
+		while self.urls.has_new_url():
 			try:
-				new_url = self.utls.get_new_url()
-				html_cont = self.downloader.download(new_url)
-				new_urls = self.parser.parse_court(result_data,new_url, html_cont, week_days)
-				self.utls.add_new_urls(new_urls)
+				new_url = self.urls.get_new_url()
+				html_cont = self.downloader.get_orders(opener, headers, new_url)
+				new_urls = self.parser.parse_court(result_data, new_url, html_cont, week_days)
+				self.urls.add_new_urls(new_urls)
 			except Exception as e:
 				print('craw failed')
 				print(e)
-		if (result_data is not None and result_data != []):
-			self.dbData.insert_court_data(result_data)
+		# if (result_data is not None and result_data != []):
+		# 	self.dbData.insert_court_data(result_data)
+		return result_data
 
 	def book_order(self, court_id, user_id):
 		# 登录时需要POST的数据
@@ -47,7 +51,7 @@ class  SpiderMain(object):
 					self.dbData.insert_order_data(order_data)
 		self.downloader.logout(opener, headers)
 
-	def craw_and_book(self,booking_rule):
+	def craw_and_book(self, booking_rule):
 		week_days = booking_rule['booking_date'].split(",")
 		self.craw(week_days)
 		for week_day in week_days:

@@ -127,7 +127,7 @@ class HtmlParser(object):
             return
         soup = BeautifulSoup(html_cont, 'html.parser', from_encoding='utf-8')
         new_urls = self._get_news_url(page_url, soup, week_day)
-        self._get_date_data(result_data, page_url,soup)
+        self._get_date_data(result_data, page_url, soup)
         return new_urls
 
     def parse_book_order_and_get_confirm_data(self, html_cont):

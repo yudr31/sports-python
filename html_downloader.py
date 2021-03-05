@@ -31,9 +31,9 @@ class HtmlDownloader(object):
 		resp = opener.open(req)
 		return opener,headers
 
-	def get_orders(self, opener, headers):
+	def get_orders(self, opener, headers, url):
 		# 登录后才能访问的网页
-		url = 'https://m.quyundong.com/myorder/index?type=0'
+		# url = 'https://m.quyundong.com/myorder/index?type=0'
 		# 构造访问请求
 		req = urllib.request.Request(url, headers=headers)
 		resp = opener.open(req)
